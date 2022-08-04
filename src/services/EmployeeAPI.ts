@@ -1,62 +1,44 @@
-import { DateTime } from "luxon";
-import axios from "axios";
-import { Employee } from "../models/Employee";
+import { Employee, IEmployee } from "../models/Employee";
 import { BaseAPI } from "./BaseAPI";
 
 type EmployeeResponseSingle = {
   status?: number;
-  employee: Employee;
+  employee: IEmployee;
 };
 
 export class EmployeeAPI extends BaseAPI {
   public static async list(): Promise<Employee[]> {
-    return (await axios.get<Employee[]>(`${this.BASE_URL}/employee`)).data.map(
-      (e) => {
-        e.created_at = DateTime.fromISO(e.created_at as unknown as string);
-        e.updated_at = DateTime.fromISO(e.updated_at as unknown as string);
-        return e;
-      }
+    return (await this.client.get<IEmployee[]>("/employee")).data.map(
+      Employee.fromJSON
     );
   }
   public static async get(id: number): Promise<Employee> {
     if (id !== 0) {
-      let e = (
-        await axios.get<EmployeeResponseSingle>(
-          `${this.BASE_URL}/employee/${id}`
-        )
-      ).data.employee;
-      e.created_at = DateTime.fromISO(e.created_at as unknown as string);
-      e.updated_at = DateTime.fromISO(e.updated_at as unknown as string);
-      return e;
+      return Employee.fromJSON(
+        (await this.client.get<EmployeeResponseSingle>(`/employee/${id}`)).data
+          .employee
+      );
     } else {
-      return {
-        id: 0,
-        name: "",
-        color: "",
-      };
+      return Employee.empty();
     }
   }
   public static async patch(id: number, payload: Employee): Promise<Employee> {
-    let e = (
-      await axios.patch<EmployeeResponseSingle>(
-        `${this.BASE_URL}/employee/${id}`,
-        payload,
-        {}
-      )
-    ).data.employee;
-    e.created_at = DateTime.fromISO(e.created_at as unknown as string);
-    e.updated_at = DateTime.fromISO(e.updated_at as unknown as string);
-    return e;
+    return Employee.fromJSON(
+      (
+        await this.client.patch<EmployeeResponseSingle>(
+          `/employee/${id}`,
+          payload
+        )
+      ).data.employee
+    );
   }
-  public static async post(payload: Employee) {
-    let e = (
-      await axios.post<EmployeeResponseSingle>(
-        `${this.BASE_URL}/employee`,
-        payload
-      )
-    ).data.employee;
-    e.created_at = DateTime.fromISO(e.created_at as unknown as string);
-    e.updated_at = DateTime.fromISO(e.updated_at as unknown as string);
-    return e;
+  public static async post(payload: Employee): Promise<Employee> {
+    return Employee.fromJSON(
+      (await this.client.post<EmployeeResponseSingle>(`/employee`, payload))
+        .data.employee
+    );
+  }
+  public static async delete(id: number): Promise<{ id: number }> {
+    return (await this.client.delete<{ id: number }>(`/employee/${id}`)).data;
   }
 }
