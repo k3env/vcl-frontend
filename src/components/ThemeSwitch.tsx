@@ -4,7 +4,6 @@ import {
   Text,
   Center,
   useMantineColorScheme,
-  Group,
 } from "@mantine/core";
 import { upperFirst } from "@mantine/hooks";
 import { IconMoon, IconSun } from "@tabler/icons";
@@ -47,21 +46,22 @@ export function ThemeSwitch() {
   const Icon = colorScheme === "dark" ? IconSun : IconMoon;
 
   return (
-    <Group position="center" my="xl">
-      <UnstyledButton
-        aria-label="Toggle theme"
-        className={classes.control}
-        onClick={() => toggleColorScheme()}
-        title="Ctrl + J"
-      >
-        <Text size="sm" className={classes.value}>
-          {upperFirst(colorScheme === "light" ? "dark" : "light")} theme
-        </Text>
+    // <Group position="center" my="xl">
 
-        <Center className={classes.iconWrapper}>
-          <Icon size={18} stroke={1.5} />
-        </Center>
-      </UnstyledButton>
-    </Group>
+    <UnstyledButton
+      aria-label="Toggle theme"
+      className={classes.control}
+      onClick={() => toggleColorScheme()}
+      title="Ctrl + J"
+    >
+      <Text size="sm" className={classes.value}>
+        {upperFirst(colorScheme === "light" ? "dark" : "light")} theme
+      </Text>
+
+      <Center className={classes.iconWrapper}>
+        <Icon size={18} stroke={1.5} />
+      </Center>
+    </UnstyledButton>
+    // </Group>
   );
 }
