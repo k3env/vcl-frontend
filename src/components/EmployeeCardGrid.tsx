@@ -1,10 +1,19 @@
-import { ActionIcon, Center, Loader, SimpleGrid } from "@mantine/core";
+import {
+  ActionIcon,
+  Affix,
+  Center,
+  Group,
+  SimpleGrid,
+  Space,
+  Text,
+} from "@mantine/core";
 import { IconPlus } from "@tabler/icons";
 import React from "react";
 import { Link } from "react-router-dom";
 import { TEmployeeList } from "../models/Employee";
 import { EmployeeAPI } from "../services/EmployeeAPI";
 import { EmployeeCard } from "./EmployeeCard";
+import { LoadingScreen } from "./LoadingScreen";
 
 export class EmployeeCardGrid extends React.Component<{}, TEmployeeList> {
   state: TEmployeeList = {
@@ -12,41 +21,54 @@ export class EmployeeCardGrid extends React.Component<{}, TEmployeeList> {
   };
 
   componentDidMount() {
-    // TODO: убрать таймаут.
     EmployeeAPI.list().then((es) => {
-      setTimeout(() => this.setState({ employees: es }), 1000);
+      this.setState({ employees: es });
     });
   }
 
   render() {
     if (this.state.employees === null) {
-      return (
-        <Center>
-          <Loader color="red" size="xl" variant="bars" />
-        </Center>
-      );
-    } else {
-      let items = this.state.employees.map((e) => (
-        <EmployeeCard employee={e} canPress={true} key={e.id?.toString()} />
-      ));
-      return (
-        <>
+      return <LoadingScreen />;
+    }
+
+    return (
+      <>
+        {this.state.employees.length !== 0 && (
           <SimpleGrid cols={3} spacing="sm">
-            {items}
+            {this.state.employees.map((e) => (
+              <EmployeeCard
+                employee={e}
+                canPress={true}
+                key={e.id?.toString()}
+              />
+            ))}
           </SimpleGrid>
+        )}
+        {this.state.employees.length === 0 && (
+          <Center>
+            <Group>
+              <Text size="xl">No one employee found</Text>
+              <Space h="sm" />
+              <Text>
+                You can add someone by click on green plus button at bottom
+                right corner
+              </Text>
+            </Group>
+          </Center>
+        )}
+        <Affix position={{ bottom: 10, right: 10 }}>
           <ActionIcon
             color="green"
             size="xl"
             radius="xl"
             variant="filled"
-            style={{ position: "absolute", bottom: "10px", right: "10px" }}
             component={Link}
             to="/employees/new"
           >
             <IconPlus />
           </ActionIcon>
-        </>
-      );
-    }
+        </Affix>
+      </>
+    );
   }
 }
