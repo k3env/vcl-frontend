@@ -1,4 +1,6 @@
+import axios from "axios";
 export class BaseAPI {
-  protected static BASE_URL = "https://vcl-be.herokuapp.com/api";
-  // protected static BASE_URL = "http://localhost:3333/api";
+  private static BASE_URL = "https://vcl-be.herokuapp.com/api";
+  // private static BASE_URL = "http://localhost:3333/api";
+  protected static client = axios.create({ baseURL: this.BASE_URL });
 }
