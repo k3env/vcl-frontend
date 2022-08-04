@@ -1,9 +1,10 @@
-import { Center, Loader } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Employee, TEmployeeSingle } from "../models/Employee";
 import { EmployeeAPI } from "../services/EmployeeAPI";
 import { EmployeeCard } from "./EmployeeCard";
+import { LoadingScreen } from "./LoadingScreen";
+import { VacationCardList } from "./VacationCardList";
 
 export function EmployeeCardDetails() {
   const [state, setState] = useState<TEmployeeSingle>(() => {
@@ -20,11 +21,12 @@ export function EmployeeCardDetails() {
   }, [params.employee_id]);
 
   if (state.employee === null) {
-    return (
-      <Center>
-        <Loader color="red" size="xl" variant="bars" />
-      </Center>
-    );
+    return <LoadingScreen />;
   }
-  return <EmployeeCard employee={state.employee} />;
+  return (
+    <>
+      <EmployeeCard employee={state.employee} />
+      <VacationCardList employee={state.employee} />
+    </>
+  );
 }
