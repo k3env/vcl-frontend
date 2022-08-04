@@ -3,7 +3,6 @@ import {
   EmployeeCardDetails,
   EmployeeCardGrid,
   EmployeeForm,
-  ThemeSwitch,
 } from "./components";
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
 
@@ -13,7 +12,10 @@ import {
   Container,
   MantineProvider,
 } from "@mantine/core";
+import { NotificationsProvider } from "@mantine/notifications";
 import { useState } from "react";
+import { VacationForm } from "./components/VacationForm";
+import { AppHeader } from "./components/AppHeader";
 
 function App() {
   return (
@@ -29,6 +31,14 @@ function App() {
             path="employees/:employee_id/edit"
             element={<EmployeeForm />}
           />
+          <Route
+            path="employees/:employee_id/vacation/:vID/edit"
+            element={<VacationForm />}
+          />
+          <Route
+            path="employees/:employee_id/vacation/new"
+            element={<VacationForm />}
+          />
           <Route path="employees/new" element={<EmployeeForm />} />
         </Route>
       </Routes>
@@ -41,19 +51,19 @@ function AppRoot() {
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
   return (
-    <div className="App">
-      <ColorSchemeProvider
-        colorScheme={colorScheme}
-        toggleColorScheme={toggleColorScheme}
-      >
-        <MantineProvider theme={{ colorScheme }} withGlobalStyles>
-          <ThemeSwitch />
+    <ColorSchemeProvider
+      colorScheme={colorScheme}
+      toggleColorScheme={toggleColorScheme}
+    >
+      <MantineProvider theme={{ colorScheme }} withGlobalStyles>
+        <NotificationsProvider>
+          <AppHeader links={[{ link: "/", label: "Home" }]} />
           <Container fluid>
             <Outlet />
           </Container>
-        </MantineProvider>
-      </ColorSchemeProvider>
-    </div>
+        </NotificationsProvider>
+      </MantineProvider>
+    </ColorSchemeProvider>
   );
 }
 
