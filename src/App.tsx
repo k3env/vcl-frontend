@@ -56,7 +56,7 @@ function AppRoot() {
       toggleColorScheme={toggleColorScheme}
     >
       <MantineProvider theme={{ colorScheme }} withGlobalStyles>
-        <NotificationsProvider>
+        <NotificationsProvider position="top-right">
           <AppHeader links={[{ link: "/", label: "Home" }]} />
           <Container fluid>
             <Outlet />
