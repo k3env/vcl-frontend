@@ -9,6 +9,11 @@ type VacationResponse = {
   vacation: IVacation;
 };
 
+type DeleteVacationResponse = {
+  status: string;
+  id: number;
+};
+
 export class VacationAPI extends BaseAPI {
   public static async list(employee_id?: number): Promise<Vacation[]> {
     return (
@@ -20,14 +25,10 @@ export class VacationAPI extends BaseAPI {
     ).data.vacations.map((d) => Vacation.fromJSON(d));
   }
   public static async get(id: number): Promise<Vacation> {
-    if (id !== 0) {
-      return Vacation.fromJSON(
-        (await this.client.get<VacationResponse>(`/vacation/${id}`)).data
-          .vacation
-      );
-    } else {
-      return Vacation.empty();
-    }
+    console.log(id);
+    return Vacation.fromJSON(
+      (await this.client.get<VacationResponse>(`/vacation/${id}`)).data.vacation
+    );
   }
   public static async post(
     employeeId: number,
@@ -50,5 +51,10 @@ export class VacationAPI extends BaseAPI {
       (await this.client.patch<VacationResponse>(`/vacation/${id}`, payload))
         .data.vacation
     );
+  }
+
+  public static async delete(id: number): Promise<DeleteVacationResponse> {
+    return (await this.client.delete<DeleteVacationResponse>(`/vacation/${id}`))
+      .data;
   }
 }

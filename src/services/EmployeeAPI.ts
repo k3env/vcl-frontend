@@ -13,14 +13,10 @@ export class EmployeeAPI extends BaseAPI {
     );
   }
   public static async get(id: number): Promise<Employee> {
-    if (id !== 0) {
-      return Employee.fromJSON(
-        (await this.client.get<EmployeeResponseSingle>(`/employee/${id}`)).data
-          .employee
-      );
-    } else {
-      return Employee.empty();
-    }
+    return Employee.fromJSON(
+      (await this.client.get<EmployeeResponseSingle>(`/employee/${id}`)).data
+        .employee
+    );
   }
   public static async patch(id: number, payload: Employee): Promise<Employee> {
     return Employee.fromJSON(
