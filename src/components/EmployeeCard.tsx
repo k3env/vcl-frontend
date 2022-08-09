@@ -14,12 +14,11 @@ export function EmployeeCard(props: EmployeeCardProps) {
     return (
       <Card.Section p="xs">
         <Group spacing="xs">
-          {!props.canPress && (
+          {!props.canPress ? (
             <Button color="blue" component={Link} to="/">
               Show all
             </Button>
-          )}
-          {props.canPress && (
+          ) : (
             <Button
               color="green"
               component={Link}
