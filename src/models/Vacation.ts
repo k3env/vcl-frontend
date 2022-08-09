@@ -48,6 +48,16 @@ export class Vacation {
     };
     return pl;
   }
+
+  public static formDataToPayload(
+    formData: IVacationFormData
+  ): IVacationPayload {
+    return {
+      start: DateTime.fromJSDate(formData.start).toISO(),
+      employee_id: Number.parseInt(formData.employee, 10),
+      length: formData.length,
+    };
+  }
 }
 
 export interface IVacation {
@@ -65,4 +75,8 @@ export interface IVacationPayload {
   employee_id: number;
 }
 
-export interface IVacationFormData {}
+export interface IVacationFormData {
+  start: Date;
+  length: number;
+  employee: string;
+}
