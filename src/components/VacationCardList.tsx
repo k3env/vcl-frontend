@@ -1,4 +1,4 @@
-import { Alert, Button, Group, Modal, SimpleGrid, Space, Text } from "@mantine/core";
+import { Alert, SimpleGrid, Text } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { IconAlertCircle } from "@tabler/icons";
 import { AxiosError } from "axios";
@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { TEmployeeSingle } from "../models/Employee";
 import { Vacation } from "../models/Vacation";
 import { DeleteVacationResponse, VacationAPI } from "../services/VacationAPI";
+import { DeleteModal } from "./DeleteModal";
 import { LoadingScreen } from "./LoadingScreen";
 import { VacationCard } from "./VacationCard";
 
@@ -45,11 +46,12 @@ export function VacationCardList(props: TEmployeeSingle) {
 
   const handleDeleteSuccess = (data: DeleteVacationResponse) => {
     setCount(count + 1);
-    showNotification({
+    const nKey = showNotification({
       color: 'green',
       title: 'Vacation deleted',
       message: `Vacation #${data.id} deleted`
-    })
+    });
+    console.log(nKey)
   }
 
   const handleDeleteClick = (id: number) => {
@@ -59,31 +61,11 @@ export function VacationCardList(props: TEmployeeSingle) {
 
   return (
     <>
-      <Modal
-        opened={modalOpened}
-        onClose={() => setModalOpened(false)}
-        title={<Text size="xl">Are you sure?</Text>}
-        centered
-      >
+      <DeleteModal errorChild={childItem} handleDeleteClick={handleVacationDelete} loading={onLoading} modalOpened={modalOpened} setModalOpened={setModalOpened} >
         <Text>Are you sure want delete vacation #{vID}?</Text>
         <Text>This action is irreversible</Text>
-        <Space h="xl" />
-        {childItem}
-        <Space h="xl" />
-        <Group grow spacing="xs">
-          <Button
-            color="red"
-            onClick={handleVacationDelete}
-            loading={onLoading}
-          >
-            Yes
-          </Button>
-          <Button color="gray" onClick={() => setModalOpened(false)}>
-            No
-          </Button>
-        </Group>
-      </Modal>
-      <SimpleGrid cols={4} spacing="xs">
+      </DeleteModal>
+      <SimpleGrid cols={4} spacing="xs" >
         {state?.map((v) => (
           <VacationCard vacation={v} key={v.id?.toString()} onDelete={handleDeleteClick} />
         ))}

@@ -8,10 +8,11 @@ import { LoadingScreen } from "./LoadingScreen";
 
 export default function EmployeeForm() {
   const [state, setState] = useState<TEmployeeSingle>({ employee: null });
+  const [loading, setLoading] = useState(true)
   const form = useForm({
     initialValues: {
-      name: state.employee?.name ?? "",
-      color: state.employee?.color ?? "",
+      name: "",
+      color: "",
     },
   });
 
@@ -23,9 +24,10 @@ export default function EmployeeForm() {
         name: e.name,
         color: e.color,
       });
+      setLoading(false)
     };
     const employeeId = Number.parseInt(params.employee_id ?? "0", 10);
-    EmployeeAPI.get(employeeId).then(handleEmployeeLoad);
+    EmployeeAPI.get(employeeId).then(handleEmployeeLoad, () => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.employee_id]);
 
@@ -42,14 +44,14 @@ export default function EmployeeForm() {
     window.location.assign(`/employees/${e.id}`);
   }
 
-  if (state.employee === null) {
+  if (loading) {
     return <LoadingScreen />;
   }
   return (
     <Box sx={{ maxWidth: 300 }} mx="auto">
       <form onSubmit={form.onSubmit((v) => formOnSubmit(v))}>
         <Text size="xl">
-          {params.employee_id
+          {state.employee !== null
             ? `Editing ${state.employee.name}`
             : "Create new employee"}
         </Text>
