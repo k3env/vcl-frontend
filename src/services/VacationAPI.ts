@@ -1,15 +1,15 @@
 import { IVacation, IVacationPayload, Vacation } from "./../models/Vacation";
 import { BaseAPI } from "./BaseAPI";
 
-type VacationsResponse = {
+export type VacationsResponse = {
   status?: number;
   vacations: IVacation[];
 };
-type VacationResponse = {
+export type VacationResponse = {
   vacation: IVacation;
 };
 
-type DeleteVacationResponse = {
+export type DeleteVacationResponse = {
   status: string;
   id: number;
 };
