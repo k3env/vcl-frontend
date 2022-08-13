@@ -54,9 +54,17 @@ export function VacationCardList(props: TEmployeeSingle) {
     console.log(nKey)
   }
 
-  const handleDeleteClick = (id: number) => {
-    setVID(id);
-    setModalOpened(true)
+  const handleDeleteClick = (id?: number) => {
+    if (id) {
+      setVID(id);
+      setModalOpened(true)
+    } else {
+      showNotification({
+        color: 'red',
+        title: 'Cannot delete vacation',
+        message: 'Can\'t delete unsaved vacation\nUNREACHABLE STATE'
+      })
+    }
   }
 
   return (
