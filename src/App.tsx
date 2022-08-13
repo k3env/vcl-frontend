@@ -3,6 +3,9 @@ import {
   EmployeeCardDetails,
   EmployeeCardGrid,
   EmployeeForm,
+  VacationForm,
+  VacationList,
+  AppHeader
 } from "./components";
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
 
@@ -14,8 +17,6 @@ import {
 } from "@mantine/core";
 import { NotificationsProvider } from "@mantine/notifications";
 import { useState } from "react";
-import { VacationForm } from "./components/VacationForm";
-import { AppHeader } from "./components/AppHeader";
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
             element={<VacationForm />}
           />
           <Route path="employees/new" element={<EmployeeForm />} />
+          <Route path="vacations" element={<VacationList />} />
         </Route>
       </Routes>
     </BrowserRouter>
@@ -57,7 +59,7 @@ function AppRoot() {
     >
       <MantineProvider theme={{ colorScheme }} withGlobalStyles>
         <NotificationsProvider position="top-right">
-          <AppHeader links={[{ link: "/", label: "Home" }]} />
+          <AppHeader links={[{ link: "/", label: "Home" }, { link: "/vacations", label: "Calendar" }]} />
           <Container fluid>
             <Outlet />
           </Container>

@@ -6,7 +6,7 @@ import { Employee, TEmployeeSingle } from "../models/Employee";
 import { EmployeeAPI } from "../services/EmployeeAPI";
 import { LoadingScreen } from "./LoadingScreen";
 
-export default function EmployeeForm() {
+export function EmployeeForm() {
   const [state, setState] = useState<TEmployeeSingle>({ employee: null });
   const [loading, setLoading] = useState(true)
   const form = useForm({
