@@ -34,9 +34,9 @@ export function VacationCard(props: VacationProps) {
       return (
         <>
           <Group position="apart">
-            {/* <Indicator inline position="top-end" color={props.vacation.employee.color} > */}
-            <ColorSwatch color={props.vacation.employee.color} size={18} /><Text size="xl">{props.vacation.employee.name}</Text>
-            {/* </Indicator> */}
+            <Group position="left">
+              <ColorSwatch color={props.vacation.employee.color} size={18} /><Text size="xl">{props.vacation.employee.name}</Text>
+            </Group>
             {actionButtons}
           </Group>
 
