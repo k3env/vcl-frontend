@@ -73,7 +73,7 @@ export function EmployeeCardGrid() {
   }
   return (
     <>
-      <DeleteModal errorChild={childItem} modalOpened={modalOpened} setModalOpened={setModalOpened} loading={onLoading} handleDeleteClick={handleEmployeeDelete}>
+      <DeleteModal errorChild={childItem} modalOpened={modalOpened} loading={onLoading} handleDeleteClick={handleEmployeeDelete} onModalClose={() => setModalOpened(false)}>
         <Text>Are you sure want delete {deleteData.name}?</Text>
         <Text>This action is irreversible</Text>
       </DeleteModal>
