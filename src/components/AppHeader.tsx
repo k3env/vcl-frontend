@@ -1,4 +1,4 @@
-import { SyntheticEvent, useState } from "react";
+import { SyntheticEvent } from "react";
 import {
   createStyles,
   Header,
@@ -11,7 +11,6 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import { ThemeSwitch } from "./ThemeSwitch";
 import { Link, LinkProps, useMatch, useNavigate, useResolvedPath } from "react-router-dom";
-// import { MantineLogo } from "@mantine/ds";
 
 const HEADER_HEIGHT = 60;
 
@@ -102,7 +101,6 @@ function HeaderLink({ children, to, ...props }: LinkProps) {
   const { classes, cx } = useStyles();
   let resolved = useResolvedPath(to);
   let match = useMatch({ path: resolved.pathname, end: true });
-  // console.log(cx(classes.link, { [classes.linkActive]: match !== null, }))
   return (
     <Link
       to={to}
@@ -115,21 +113,11 @@ function HeaderLink({ children, to, ...props }: LinkProps) {
 
 export function AppHeader({ links }: HeaderResponsiveProps) {
   const [opened, { toggle, close }] = useDisclosure(false);
-  // const [active, setActive] = useState(links[0].link);
-  const { classes, cx } = useStyles();
+  const { classes } = useStyles();
 
   const nav = useNavigate();
-  // links.map(({ link }) => {
-  //   const resolved = useResolvedPath(link)
-  //   const match = useMatch({ path: resolved.pathname, end: true });
-  //   if (match) {
-  //     setActive(link)
-  //   }
-  // })
-
   const handleClick = (e: SyntheticEvent, link: string) => {
     e.preventDefault()
-    // setActive(link)
     nav(link)
     close()
   }
@@ -141,7 +129,6 @@ export function AppHeader({ links }: HeaderResponsiveProps) {
   return (
     <Header height={HEADER_HEIGHT} mb={20} className={classes.root}>
       <Container className={classes.header}>
-        {/* <MantineLogo size={28} /> */}
         <Group spacing={5} className={classes.links}>
           {items}
         </Group>
