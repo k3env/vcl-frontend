@@ -2,62 +2,70 @@ import { Alert, SimpleGrid, Text } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { IconAlertCircle } from "@tabler/icons";
 import { AxiosError } from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { TEmployeeSingle } from "../models/Employee";
 import { Vacation } from "../models/Vacation";
+import { DeleteVacationModalReducer, DeleteVacationReducerState } from "../reducers/DeleteVacationModalReducer";
 import { DeleteVacationResponse, VacationAPI } from "../services/VacationAPI";
 import { DeleteModal } from "./DeleteModal";
 import { LoadingScreen } from "./LoadingScreen";
 import { VacationCard } from "./VacationCard";
 
 export function VacationCardList(props: TEmployeeSingle) {
-  const [state, setState] = useState<Vacation[] | null>(null);
-  const [count, setCount] = useState<number>(0)
-  const [vID, setVID] = useState<number | undefined>()
-  useEffect(() => {
-    const handleVacationsLoad = (vs: Vacation[]) => setState(vs);
-    VacationAPI.list(props.employee?.id ?? 0).then(handleVacationsLoad);
-  }, [props.employee?.id, count]);
 
-  const [modalOpened, setModalOpened] = useState(false);
-  const [onLoading, setOnLoading] = useState(false);
-  const [childItem, setChildItem] = useState((<></>));
-
-  if (state === null) {
-    return <LoadingScreen />;
-  }
-
-  const handleVacationDelete = () => {
-    if (vID !== undefined) {
-      setOnLoading(true);
-      VacationAPI.delete(vID)
-        .then((data) => {
-          setOnLoading(false);
-          setModalOpened(false);
-          handleDeleteSuccess(data)
-        }, (reason: AxiosError) => {
-          setOnLoading(false);
-          setChildItem((<Alert icon={<IconAlertCircle size={16} />} title="Something went wrong" color="red">
-            Something terrible happened: {JSON.stringify(reason.response?.data)}
-          </Alert>))
-        });
-    }
-  };
-
-  const handleDeleteSuccess = (data: DeleteVacationResponse) => {
-    setCount(count + 1);
-    const nKey = showNotification({
+  const handleConfirmComplete = (data: DeleteVacationResponse) => {
+    dispatch({ type: 'action-success' })
+    showNotification({
       color: 'green',
       title: 'Vacation deleted',
       message: `Vacation #${data.id} deleted`
     });
-    console.log(nKey)
   }
+
+  const handleConfirmFail = (reason: AxiosError) => {
+    dispatch({
+      type: 'action-error', payload: {
+        error: (<Alert icon={<IconAlertCircle size={16} />} title="Something went wrong" color="red">
+          Something terrible happened: {JSON.stringify(reason)}
+        </Alert>)
+      }
+    })
+  }
+
+  const initialState: DeleteVacationReducerState = {
+    count: 0,
+    deletionID: undefined,
+    deletionModel: 'Vacation',
+    modalOpened: false,
+    onLoading: false,
+    error: null,
+    callbackSuccess: (data) => { handleConfirmComplete(data) },
+    callbackFail: (data) => { handleConfirmFail(data) }
+  }
+
+  const [vacations, setVacations] = useState<Vacation[] | null>(null);
+  const [state, dispatch] = useReducer(DeleteVacationModalReducer, initialState)
+
+  useEffect(() => {
+    const handleVacationsLoad = (vs: Vacation[]) => setVacations(vs);
+    VacationAPI.list(props.employee?.id ?? 0).then(handleVacationsLoad);
+  }, [props.employee?.id, state.count]);
+
+  if (vacations === null) {
+    return <LoadingScreen />;
+  }
+
+  const handleVacationDelete = () => {
+    if (state.deletionID !== undefined) {
+      dispatch({
+        type: 'confirm-click',
+      })
+    }
+  };
 
   const handleDeleteClick = (id?: number) => {
     if (id) {
-      setVID(id);
-      setModalOpened(true)
+      dispatch({ type: 'open-click', payload: { vid: id, model: (Vacation.name) } })
     } else {
       showNotification({
         color: 'red',
@@ -69,12 +77,18 @@ export function VacationCardList(props: TEmployeeSingle) {
 
   return (
     <>
-      <DeleteModal errorChild={childItem} handleDeleteClick={handleVacationDelete} loading={onLoading} modalOpened={modalOpened} setModalOpened={setModalOpened} >
-        <Text>Are you sure want delete vacation #{vID}?</Text>
+      <DeleteModal
+        errorChild={state.error}
+        handleDeleteClick={handleVacationDelete}
+        loading={state.onLoading}
+        modalOpened={state.modalOpened}
+        onModalClose={() => dispatch({ type: 'close-click' })}
+      >
+        <Text>Are you sure want delete vacation #{state.deletionID}?</Text>
         <Text>This action is irreversible</Text>
       </DeleteModal>
       <SimpleGrid cols={4} spacing="xs" >
-        {state?.map((v) => (
+        {vacations?.map((v) => (
           <VacationCard vacation={v} key={v.id?.toString()} onDelete={handleDeleteClick} />
         ))}
       </SimpleGrid>
