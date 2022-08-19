@@ -1,10 +1,6 @@
 import { Employee, IEmployee } from "../models/Employee";
 import { BaseAPI } from "./BaseAPI";
-
-type EmployeeResponseSingle = {
-  status?: number;
-  employee: IEmployee;
-};
+import { EmployeeResponseSingle, DeleteResponse } from "./_ResponseTypes";
 
 export class EmployeeAPI extends BaseAPI {
   public static async list(): Promise<Employee[]> {
@@ -34,7 +30,7 @@ export class EmployeeAPI extends BaseAPI {
         .data.employee
     );
   }
-  public static async delete(id: number): Promise<{ id: number }> {
-    return (await this.client.delete<{ id: number }>(`/employee/${id}`)).data;
+  public static async delete(id: number): Promise<DeleteResponse> {
+    return (await this.client.delete<DeleteResponse>(`/employee/${id}`)).data;
   }
 }

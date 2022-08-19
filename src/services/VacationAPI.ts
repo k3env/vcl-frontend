@@ -1,18 +1,10 @@
-import { IVacation, IVacationPayload, Vacation } from "./../models/Vacation";
+import { IVacationPayload, Vacation } from "./../models/Vacation";
 import { BaseAPI } from "./BaseAPI";
-
-export type VacationsResponse = {
-  status?: number;
-  vacations: IVacation[];
-};
-export type VacationResponse = {
-  vacation: IVacation;
-};
-
-export type DeleteVacationResponse = {
-  status: string;
-  id: number;
-};
+import {
+  VacationsResponse,
+  VacationResponse,
+  DeleteResponse,
+} from "./_ResponseTypes";
 
 export class VacationAPI extends BaseAPI {
   public static async list(employee_id?: number): Promise<Vacation[]> {
@@ -53,8 +45,7 @@ export class VacationAPI extends BaseAPI {
     );
   }
 
-  public static async delete(id: number): Promise<DeleteVacationResponse> {
-    return (await this.client.delete<DeleteVacationResponse>(`/vacation/${id}`))
-      .data;
+  public static async delete(id: number): Promise<DeleteResponse> {
+    return (await this.client.delete<DeleteResponse>(`/vacation/${id}`)).data;
   }
 }
