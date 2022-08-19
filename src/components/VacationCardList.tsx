@@ -5,15 +5,16 @@ import { AxiosError } from "axios";
 import { useEffect, useReducer, useState } from "react";
 import { TEmployeeSingle } from "../models/Employee";
 import { Vacation } from "../models/Vacation";
-import { DeleteVacationModalReducer, DeleteVacationReducerState } from "../reducers/DeleteVacationModalReducer";
-import { DeleteVacationResponse, VacationAPI } from "../services/VacationAPI";
+import { DeleteModalReducer, DeleteReducerState } from "../reducers/DeleteModalReducer";
+import { VacationAPI } from "../services/VacationAPI";
+import { DeleteResponse } from "../services/_ResponseTypes";
 import { DeleteModal } from "./DeleteModal";
 import { LoadingScreen } from "./LoadingScreen";
 import { VacationCard } from "./VacationCard";
 
 export function VacationCardList(props: TEmployeeSingle) {
 
-  const handleConfirmComplete = (data: DeleteVacationResponse) => {
+  const handleConfirmComplete = (data: DeleteResponse) => {
     dispatch({ type: 'action-success' })
     showNotification({
       color: 'green',
@@ -32,7 +33,7 @@ export function VacationCardList(props: TEmployeeSingle) {
     })
   }
 
-  const initialState: DeleteVacationReducerState = {
+  const initialState: DeleteReducerState = {
     count: 0,
     deletionID: undefined,
     deletionModel: 'Vacation',
@@ -44,7 +45,7 @@ export function VacationCardList(props: TEmployeeSingle) {
   }
 
   const [vacations, setVacations] = useState<Vacation[] | null>(null);
-  const [state, dispatch] = useReducer(DeleteVacationModalReducer, initialState)
+  const [state, dispatch] = useReducer(DeleteModalReducer, initialState)
 
   useEffect(() => {
     const handleVacationsLoad = (vs: Vacation[]) => setVacations(vs);

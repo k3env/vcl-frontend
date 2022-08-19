@@ -1,35 +1,37 @@
+import { EmployeeAPI } from "../services/EmployeeAPI";
 import { AxiosError } from "axios";
-import { DeleteVacationResponse, VacationAPI } from "../services/VacationAPI";
+import { VacationAPI } from "../services/VacationAPI";
+import { DeleteResponse } from "../services/_ResponseTypes";
 
-export type DeleteVacationReducerActionType =
+export type DeleteReducerActionType =
   | "confirm-click"
   | "close-click"
   | "open-click"
   | "action-success"
   | "action-error";
 
-export type DeleteVacationReducerState = {
+export type DeleteReducerState = {
   count: number;
   deletionID: number | undefined;
   deletionModel: "Vacation" | "Employee";
   modalOpened: boolean;
   onLoading: boolean;
   error: JSX.Element | null;
-  callbackSuccess: (arg: DeleteVacationResponse) => void;
+  callbackSuccess: (arg: DeleteResponse) => void;
   callbackFail: (arg: AxiosError) => void;
 };
 
-export type DeleteVacationReducerAction = {
-  type: DeleteVacationReducerActionType;
+export type DeleteReducerAction = {
+  type: DeleteReducerActionType;
   payload?: any;
 };
 
-export function DeleteVacationModalReducer(
-  state: DeleteVacationReducerState,
-  action: DeleteVacationReducerAction
+export function DeleteModalReducer(
+  state: DeleteReducerState,
+  action: DeleteReducerAction
 ) {
   const { type, payload } = action;
-  let newState: Partial<DeleteVacationReducerState> = {};
+  let newState: Partial<DeleteReducerState> = {};
   switch (type) {
     case "action-success":
       newState = {
@@ -45,10 +47,20 @@ export function DeleteVacationModalReducer(
     case "confirm-click":
       if (state.deletionID) {
         newState.onLoading = true;
-        VacationAPI.delete(state.deletionID).then(
-          state.callbackSuccess,
-          state.callbackFail
-        );
+        switch (state.deletionModel) {
+          case "Vacation":
+            VacationAPI.delete(state.deletionID).then(
+              state.callbackSuccess,
+              state.callbackFail
+            );
+            break;
+          case "Employee":
+            EmployeeAPI.delete(state.deletionID).then(
+              state.callbackSuccess,
+              state.callbackFail
+            );
+            break;
+        }
       }
       break;
     case "open-click":

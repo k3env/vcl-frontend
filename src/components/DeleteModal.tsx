@@ -1,6 +1,6 @@
 import { Modal, Space, Group, Button, Text } from "@mantine/core";
 import React from "react";
-import { DeleteVacationReducerAction, DeleteVacationReducerState } from "../reducers/DeleteVacationModalReducer";
+import { DeleteReducerAction, DeleteReducerState } from "../reducers/DeleteModalReducer";
 
 interface DeleteModalProps {
   modalOpened: boolean,
@@ -9,7 +9,7 @@ interface DeleteModalProps {
   loading: boolean,
   errorChild: React.ReactNode | null,
   children: React.ReactNode
-  reducer?: { state: DeleteVacationReducerState, dispatch: React.Dispatch<DeleteVacationReducerAction> }
+  reducer?: { state: DeleteReducerState, dispatch: React.Dispatch<DeleteReducerAction> }
 }
 
 export function DeleteModal(props: DeleteModalProps) {

@@ -1,9 +1,15 @@
-import { ColorSwatch, Grid, Group, LoadingOverlay, useMantineTheme } from "@mantine/core";
+import { Alert, ColorSwatch, Grid, Group, LoadingOverlay, useMantineTheme, Text } from "@mantine/core";
 import { Calendar } from "@mantine/dates";
+import { showNotification } from "@mantine/notifications";
+import { IconAlertCircle } from "@tabler/icons";
+import { AxiosError } from "axios";
 import { DateTime } from "luxon";
-import { useEffect, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { Vacation } from "../models/Vacation";
+import { DeleteModalReducer, DeleteReducerState } from "../reducers/DeleteModalReducer";
 import { VacationAPI } from "../services/VacationAPI";
+import { DeleteResponse } from "../services/_ResponseTypes";
+import { DeleteModal } from "./DeleteModal";
 import { VacationCard } from "./VacationCard";
 
 type VacationHash = { [key: string]: Vacation[] }
@@ -18,6 +24,57 @@ export function VacationList() {
   const VacationItem = (props: { vacation: Vacation }) => {
     return <ColorSwatch color={props.vacation.employee.color} size={8} />
   }
+
+  const handleConfirmComplete = (data: DeleteResponse) => {
+    dispatch({ type: 'action-success' })
+    showNotification({
+      color: 'green',
+      title: 'Vacation deleted',
+      message: `Vacation #${data.id} deleted`
+    });
+  }
+
+  const handleConfirmFail = (reason: AxiosError) => {
+    dispatch({
+      type: 'action-error', payload: {
+        error: (<Alert icon={<IconAlertCircle size={16} />} title="Something went wrong" color="red">
+          Something terrible happened: {JSON.stringify(reason)}
+        </Alert>)
+      }
+    })
+  }
+
+  const initialState: DeleteReducerState = {
+    count: 0,
+    deletionID: undefined,
+    deletionModel: 'Vacation',
+    modalOpened: false,
+    onLoading: false,
+    error: null,
+    callbackSuccess: (data) => { handleConfirmComplete(data) },
+    callbackFail: (data) => { handleConfirmFail(data) }
+  }
+
+  const handleDeleteClick = (id?: number) => {
+    if (id) {
+      dispatch({ type: 'open-click', payload: { vid: id, model: (Vacation.name) } })
+    } else {
+      showNotification({
+        color: 'red',
+        title: 'Cannot delete vacation',
+        message: 'Can\'t delete unsaved vacation\nUNREACHABLE STATE'
+      })
+    }
+  }
+  const handleVacationDelete = () => {
+    if (state.deletionID !== undefined) {
+      dispatch({
+        type: 'confirm-click',
+      })
+    }
+  };
+
+  const [state, dispatch] = useReducer(DeleteModalReducer, initialState)
 
   const customDayRender = (date: Date) => {
     const day = date.getDate();
@@ -46,7 +103,6 @@ export function VacationList() {
     setSelectedMonth(DateTime.fromJSDate(month))
   }
 
-  const vacationsListJson = JSON.stringify(vacations);
   useEffect(() => {
     let _vacations: VacationHash = {}
     VacationAPI.list().then((vs) => {
@@ -62,7 +118,7 @@ export function VacationList() {
       setVacations(_vacations)
       setLoading(false)
     })
-  }, [vacationsListJson])
+  }, [state.count])
 
   const style = ({
     cell: {
@@ -86,12 +142,33 @@ export function VacationList() {
   return (
     <>
       <LoadingOverlay visible={loading} overlayBlur={5} />
-      <Calendar value={day.toJSDate()} onChange={handleChangeDate} onMonthChange={handleMonthChange} month={selectedMonth.toJSDate()} fullWidth size="xl" renderDay={customDayRender} hideOutsideDates styles={style} />
+      <DeleteModal
+        errorChild={state.error}
+        handleDeleteClick={handleVacationDelete}
+        loading={state.onLoading}
+        modalOpened={state.modalOpened}
+        onModalClose={() => dispatch({ type: 'close-click' })}
+      // reducer={{ state: state, dispatch: dispatch }}
+      >
+        <Text>Are you sure want delete vacation #{state.deletionID}?</Text>
+        <Text>This action is irreversible</Text>
+      </DeleteModal>
+      <Calendar
+        value={day.toJSDate()}
+        onChange={handleChangeDate}
+        onMonthChange={handleMonthChange}
+        month={selectedMonth.toJSDate()}
+        fullWidth
+        size="xl"
+        renderDay={customDayRender}
+        hideOutsideDates
+        styles={style}
+      />
       <Grid gutter="xs" pt="lg">
         {
           (vacations[key])?.map(
             (v) => {
-              return <Grid.Col key={v.id} span={4}><VacationCard key={v.id?.toString()} vacation={v} onDelete={() => { }} showHeader={true} /></Grid.Col>
+              return <Grid.Col key={v.id?.toString()} span={4}><VacationCard vacation={v} onDelete={handleDeleteClick} showHeader={true} /></Grid.Col>
             }
           )
         }
