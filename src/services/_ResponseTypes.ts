@@ -1,19 +1,18 @@
-import { IEmployee } from "../models/Employee";
-import { IVacation } from "../models/Vacation";
+import { AxiosError } from "axios";
 
-export type EmployeeResponseSingle = {
-  status?: number;
-  employee: IEmployee;
-};
-export type VacationsResponse = {
-  status?: number;
-  vacations: IVacation[];
-};
-export type VacationResponse = {
-  vacation: IVacation;
+export type AxiosAPIError = AxiosError<ErrorResponse>;
+
+export type DeleteResponse = SingleResponse<{ id: number }>;
+export type ErrorResponse = SingleResponse<null>;
+
+export type SingleResponse<T> = {
+  status: number;
+  message: string;
+  data: T;
 };
 
-export type DeleteResponse = {
-  status: string;
-  id: number;
+export type ManyResponse<T> = {
+  status: number;
+  message: string;
+  data: T[];
 };

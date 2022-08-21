@@ -2,12 +2,12 @@ import { Box, Button, ColorInput, Group, Text, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Employee, TEmployeeSingle } from "../models/Employee";
+import { Employee } from "../models/Employee";
 import { EmployeeAPI } from "../services/EmployeeAPI";
 import { LoadingScreen } from "./LoadingScreen";
 
 export function EmployeeForm() {
-  const [state, setState] = useState<TEmployeeSingle>({ employee: null });
+  const [state, setState] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true)
   const form = useForm({
     initialValues: {
@@ -19,7 +19,7 @@ export function EmployeeForm() {
   let params = useParams();
   useEffect(() => {
     const handleEmployeeLoad = (e: Employee) => {
-      setState({ employee: e });
+      setState(e);
       form.setValues({
         name: e.name,
         color: e.color,
@@ -51,8 +51,8 @@ export function EmployeeForm() {
     <Box sx={{ maxWidth: 300 }} mx="auto">
       <form onSubmit={form.onSubmit((v) => formOnSubmit(v))}>
         <Text size="xl">
-          {state.employee !== null
-            ? `Editing ${state.employee.name}`
+          {state !== null
+            ? `Editing ${state.name}`
             : "Create new employee"}
         </Text>
         <TextInput

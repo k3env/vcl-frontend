@@ -2,13 +2,12 @@ import { Alert, ColorSwatch, Grid, Group, LoadingOverlay, useMantineTheme, Text 
 import { Calendar } from "@mantine/dates";
 import { showNotification } from "@mantine/notifications";
 import { IconAlertCircle } from "@tabler/icons";
-import { AxiosError } from "axios";
 import { DateTime } from "luxon";
 import { useEffect, useReducer, useState } from "react";
 import { Vacation } from "../models/Vacation";
 import { DeleteModalReducer, DeleteReducerState } from "../reducers/DeleteModalReducer";
 import { VacationAPI } from "../services/VacationAPI";
-import { DeleteResponse } from "../services/_ResponseTypes";
+import { AxiosAPIError, DeleteResponse } from "../services/_ResponseTypes";
 import { DeleteModal } from "./DeleteModal";
 import { VacationCard } from "./VacationCard";
 
@@ -30,15 +29,15 @@ export function VacationList() {
     showNotification({
       color: 'green',
       title: 'Vacation deleted',
-      message: `Vacation #${data.id} deleted`
+      message: `Vacation #${data.data.id} deleted`
     });
   }
 
-  const handleConfirmFail = (reason: AxiosError) => {
+  const handleConfirmFail = (reason: AxiosAPIError) => {
     dispatch({
       type: 'action-error', payload: {
         error: (<Alert icon={<IconAlertCircle size={16} />} title="Something went wrong" color="red">
-          Something terrible happened: {JSON.stringify(reason)}
+          Something terrible happened: {JSON.stringify(reason.response)}
         </Alert>)
       }
     })

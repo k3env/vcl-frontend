@@ -44,10 +44,10 @@ export interface IEmployee {
   updated_at?: string;
 }
 
-export type TEmployeeSingle = {
-  employee: Employee | null;
-};
+// export type TEmployeeSingle = {
+//   employee: Employee | null;
+// };
 
-export type TEmployeeList = {
-  employees: Employee[] | null;
-};
+// export type TEmployeeList = {
+//   employees: Employee[] | null;
+// };

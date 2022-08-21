@@ -1,25 +1,22 @@
-import { IVacationPayload, Vacation } from "./../models/Vacation";
+import { IVacation, IVacationPayload, Vacation } from "./../models/Vacation";
 import { BaseAPI } from "./BaseAPI";
-import {
-  VacationsResponse,
-  VacationResponse,
-  DeleteResponse,
-} from "./_ResponseTypes";
+import { DeleteResponse, ManyResponse, SingleResponse } from "./_ResponseTypes";
 
 export class VacationAPI extends BaseAPI {
   public static async list(employee_id?: number): Promise<Vacation[]> {
     return (
-      await this.client.get<VacationsResponse>(
+      await this.client.get<ManyResponse<IVacation>>(
         employee_id !== undefined
           ? `/employee/${employee_id}/vacation`
           : "/vacation"
       )
-    ).data.vacations.map((d) => Vacation.fromJSON(d));
+    ).data.data.map((d) => Vacation.fromJSON(d));
   }
   public static async get(id: number): Promise<Vacation> {
     console.log(id);
     return Vacation.fromJSON(
-      (await this.client.get<VacationResponse>(`/vacation/${id}`)).data.vacation
+      (await this.client.get<SingleResponse<IVacation>>(`/vacation/${id}`)).data
+        .data
     );
   }
   public static async post(
@@ -28,11 +25,11 @@ export class VacationAPI extends BaseAPI {
   ): Promise<Vacation> {
     return Vacation.fromJSON(
       (
-        await this.client.post<VacationResponse>(
+        await this.client.post<SingleResponse<IVacation>>(
           `/employee/${employeeId}/vacation`,
           payload
         )
-      ).data.vacation
+      ).data.data
     );
   }
   public static async patch(
@@ -40,8 +37,12 @@ export class VacationAPI extends BaseAPI {
     payload: IVacationPayload
   ): Promise<Vacation> {
     return Vacation.fromJSON(
-      (await this.client.patch<VacationResponse>(`/vacation/${id}`, payload))
-        .data.vacation
+      (
+        await this.client.patch<SingleResponse<IVacation>>(
+          `/vacation/${id}`,
+          payload
+        )
+      ).data.data
     );
   }
 

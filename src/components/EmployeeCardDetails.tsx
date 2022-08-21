@@ -1,7 +1,7 @@
 import { showNotification } from "@mantine/notifications";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Employee, TEmployeeSingle } from "../models/Employee";
+import { Employee } from "../models/Employee";
 import { EmployeeAPI } from "../services/EmployeeAPI";
 import { DeleteModal } from "./DeleteModal";
 import { EmployeeCard } from "./EmployeeCard";
@@ -12,18 +12,13 @@ import { IconAlertCircle } from "@tabler/icons";
 import { AxiosError } from "axios";
 
 export function EmployeeCardDetails() {
-  const [state, setState] = useState<TEmployeeSingle>(() => {
-    return {
-      employee: null,
-    };
-  });
+  const [state, setState] = useState<Employee | null>(null);
 
   let params = useParams();
   useEffect(() => {
-    const handleEmployeeLoad = (e: Employee) => setState({ employee: e });
     const employeeId = Number.parseInt(params.employee_id ?? "0", 10);
     EmployeeAPI.get(employeeId)
-      .then(handleEmployeeLoad, (reason) => {
+      .then(setState, (reason) => {
         showNotification({
           title: "Employee loading failed",
           message: reason.response.statusText,
@@ -62,17 +57,17 @@ export function EmployeeCardDetails() {
     )
   }
 
-  if (state.employee === null) {
+  if (state === null) {
     return <LoadingScreen />;
   }
   return (
     <>
       <DeleteModal errorChild={childItem} modalOpened={modalOpened} loading={onLoading} handleDeleteClick={handleEmployeeDelete} onModalClose={() => setModalOpened(false)}>
-        <Text>Are you sure want delete {state.employee.name}?</Text>
+        <Text>Are you sure want delete {state.name}?</Text>
         <Text>This action is irreversible</Text>
       </DeleteModal>
-      <EmployeeCard employee={state.employee} onDelete={handleDeleteClick} />
-      <VacationCardList employee={state.employee} />
+      <EmployeeCard employee={state} onDelete={handleDeleteClick} />
+      <VacationCardList employee={state} />
     </>
   );
 }

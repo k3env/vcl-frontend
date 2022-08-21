@@ -3,7 +3,7 @@ import { showNotification } from "@mantine/notifications";
 import { IconAlertCircle } from "@tabler/icons";
 import { AxiosError } from "axios";
 import { useEffect, useReducer, useState } from "react";
-import { TEmployeeSingle } from "../models/Employee";
+import { Employee } from "../models/Employee";
 import { Vacation } from "../models/Vacation";
 import { DeleteModalReducer, DeleteReducerState } from "../reducers/DeleteModalReducer";
 import { VacationAPI } from "../services/VacationAPI";
@@ -12,14 +12,18 @@ import { DeleteModal } from "./DeleteModal";
 import { LoadingScreen } from "./LoadingScreen";
 import { VacationCard } from "./VacationCard";
 
-export function VacationCardList(props: TEmployeeSingle) {
+type VacationCardProps = {
+  employee: Employee;
+};
+
+export function VacationCardList(props: VacationCardProps) {
 
   const handleConfirmComplete = (data: DeleteResponse) => {
     dispatch({ type: 'action-success' })
     showNotification({
       color: 'green',
       title: 'Vacation deleted',
-      message: `Vacation #${data.id} deleted`
+      message: `Vacation #${data.data.id} deleted`
     });
   }
 

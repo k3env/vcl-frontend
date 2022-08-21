@@ -11,24 +11,19 @@ import { IconAlertCircle, IconPlus } from "@tabler/icons";
 import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Employee, TEmployeeList } from "../models/Employee";
+import { Employee } from "../models/Employee";
 import { EmployeeAPI } from "../services/EmployeeAPI";
 import { DeleteModal } from "./DeleteModal";
 import { EmployeeCard } from "./EmployeeCard";
 import { LoadingScreen } from "./LoadingScreen";
 
 export function EmployeeCardGrid() {
-  const [state, setState] = useState<TEmployeeList>(() => {
-    return {
-      employees: null,
-    };
-  });
+  const [state, setState] = useState<Employee[] | null>(null);
   const [counter, setCounter] = useState(0);
 
   useEffect(() => {
-    const handleEmployeesLoad = (e: Employee[]) => setState({ employees: e });
     EmployeeAPI.list()
-      .then(handleEmployeesLoad, (reason) => {
+      .then(setState, (reason) => {
         showNotification({
           title: "Employee loading failed",
           message: reason.response.statusText,
@@ -68,7 +63,7 @@ export function EmployeeCardGrid() {
     )
   }
 
-  if (state.employees === null) {
+  if (state === null) {
     return <LoadingScreen />;
   }
   return (
@@ -77,9 +72,9 @@ export function EmployeeCardGrid() {
         <Text>Are you sure want delete {deleteData.name}?</Text>
         <Text>This action is irreversible</Text>
       </DeleteModal>
-      {state.employees.length !== 0 ? (
+      {state.length !== 0 ? (
         <SimpleGrid cols={3} spacing="sm">
-          {state.employees.map((e) => (
+          {state.map((e) => (
             <EmployeeCard
               employee={e}
               canPress={true}

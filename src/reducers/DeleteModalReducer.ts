@@ -1,7 +1,6 @@
 import { EmployeeAPI } from "../services/EmployeeAPI";
-import { AxiosError } from "axios";
 import { VacationAPI } from "../services/VacationAPI";
-import { DeleteResponse } from "../services/_ResponseTypes";
+import { AxiosAPIError, DeleteResponse } from "../services/_ResponseTypes";
 
 export type DeleteReducerActionType =
   | "confirm-click"
@@ -18,7 +17,7 @@ export type DeleteReducerState = {
   onLoading: boolean;
   error: JSX.Element | null;
   callbackSuccess: (arg: DeleteResponse) => void;
-  callbackFail: (arg: AxiosError) => void;
+  callbackFail: (arg: AxiosAPIError) => void;
 };
 
 export type DeleteReducerAction = {
