@@ -16,35 +16,37 @@ import {
   MantineProvider,
 } from "@mantine/core";
 import { NotificationsProvider } from "@mantine/notifications";
-import { useState } from "react";
+import { StrictMode, useState } from "react";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<AppRoot />}>
-          <Route index element={<EmployeeCardGrid />} />
-          <Route
-            path="employees/:employee_id"
-            element={<EmployeeCardDetails />}
-          />
-          <Route
-            path="employees/:employee_id/edit"
-            element={<EmployeeForm />}
-          />
-          <Route
-            path="employees/:employee_id/vacation/:vID/edit"
-            element={<VacationForm />}
-          />
-          <Route
-            path="employees/:employee_id/vacation/new"
-            element={<VacationForm />}
-          />
-          <Route path="employees/new" element={<EmployeeForm />} />
-          <Route path="vacations" element={<VacationList />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <StrictMode>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<AppRoot />}>
+            <Route index element={<EmployeeCardGrid />} />
+            <Route
+              path="employees/:employee_id"
+              element={<EmployeeCardDetails />}
+            />
+            <Route
+              path="employees/:employee_id/edit"
+              element={<EmployeeForm />}
+            />
+            <Route
+              path="employees/:employee_id/vacation/:vID/edit"
+              element={<VacationForm />}
+            />
+            <Route
+              path="employees/:employee_id/vacation/new"
+              element={<VacationForm />}
+            />
+            <Route path="employees/new" element={<EmployeeForm />} />
+            <Route path="vacations" element={<VacationList />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </StrictMode>
   );
 }
 
