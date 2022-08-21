@@ -5,7 +5,7 @@ import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Employee } from "../models/Employee";
-import { Vacation, IVacationFormData } from "../models/Vacation";
+import { FVacation, Vacation } from "../models/Vacation";
 import { VacationAPI } from "../services/VacationAPI";
 import { EmployeeAPI } from "../services/EmployeeAPI";
 import { LoadingScreen } from "./LoadingScreen";
@@ -32,11 +32,11 @@ export function VacationForm(props: {}) {
   });
   const nav = useNavigate();
   let params = useParams();
-  const form = useForm<IVacationFormData>({
+  const form = useForm<FVacation>({
     initialValues: {
       start: DateTime.now().toJSDate(),
       length: 3,
-      employee: params.employee_id ?? '0',
+      employee_id: params.employee_id ?? '0',
     },
   });
 
@@ -44,11 +44,7 @@ export function VacationForm(props: {}) {
   useEffect(() => {
     const handleVacationLoad = (v: Vacation) => {
       setState((os) => { return { ...os, ...{ vacation: v, loading: false } } })
-      form.setValues({
-        start: v.start.toJSDate(),
-        length: v.length,
-        employee: (params.employee_id ?? 0).toString(),
-      });
+      form.setValues(v.toFormData());
     };
 
     const handleError = () => {
@@ -56,7 +52,7 @@ export function VacationForm(props: {}) {
       form.setValues({
         start: new Date(),
         length: 3,
-        employee: (params.employee_id ?? 0).toString(),
+        employee_id: (params.employee_id ?? 0).toString(),
       });
     }
     const handleEmployeesLoad = (es: Employee[]) => {
@@ -78,8 +74,8 @@ export function VacationForm(props: {}) {
   if (state.loading) {
     return <LoadingScreen />;
   }
-  const formOnSubmit = async (v: IVacationFormData) => {
-    const handleSuccessRequest = () => nav(`/employees/${v.employee}`);
+  const formOnSubmit = async (v: FVacation) => {
+    const handleSuccessRequest = () => nav(`/employees/${v.employee_id}`);
     const handleError = (reason: AxiosError) => {
       showNotification({
         title: `Error: ${reason.code}`,
@@ -90,14 +86,14 @@ export function VacationForm(props: {}) {
         icon: <IconX />,
       });
     };
-    let vacation = Vacation.formDataToPayload(v);
+    // let vacation = Vacation.formDataToPayload(v);
     if (params.vID === undefined) {
-      VacationAPI.post(vacation.employee_id, vacation).then(
+      VacationAPI.post(Number.parseInt(v.employee_id ?? ''), v).then(
         handleSuccessRequest,
         handleError
       );
     } else {
-      VacationAPI.patch(Number.parseInt(params.vID, 10), vacation).then(
+      VacationAPI.patch(Number.parseInt(params.vID, 10), v).then(
         handleSuccessRequest,
         handleError
       );
@@ -129,7 +125,7 @@ export function VacationForm(props: {}) {
           data={state.employees}
           label="Select employee"
           required
-          {...form.getInputProps("employee")}
+          {...form.getInputProps('employee_id')}
         />
         <Group position="right" mt="md">
           <Button type="submit" color="green">

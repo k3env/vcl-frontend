@@ -1,4 +1,4 @@
-import { IVacation, IVacationPayload, Vacation } from "./../models/Vacation";
+import { FVacation, IVacation, Vacation } from "./../models/Vacation";
 import { BaseAPI } from "./BaseAPI";
 import { DeleteResponse, ManyResponse, SingleResponse } from "./_ResponseTypes";
 
@@ -21,7 +21,7 @@ export class VacationAPI extends BaseAPI {
   }
   public static async post(
     employeeId: number,
-    payload: IVacationPayload
+    payload: FVacation
   ): Promise<Vacation> {
     return Vacation.fromJSON(
       (
@@ -32,10 +32,7 @@ export class VacationAPI extends BaseAPI {
       ).data.data
     );
   }
-  public static async patch(
-    id: number,
-    payload: IVacationPayload
-  ): Promise<Vacation> {
+  public static async patch(id: number, payload: FVacation): Promise<Vacation> {
     return Vacation.fromJSON(
       (
         await this.client.patch<SingleResponse<IVacation>>(
