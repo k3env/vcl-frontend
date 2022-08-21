@@ -10,7 +10,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { ThemeSwitch } from "./ThemeSwitch";
-import { Link, LinkProps, useMatch, useNavigate, useResolvedPath } from "react-router-dom";
+import { Link, LinkProps, useLocation, useNavigate } from "react-router-dom";
 
 const HEADER_HEIGHT = 60;
 
@@ -98,13 +98,9 @@ interface HeaderResponsiveProps {
 }
 
 function HeaderLink({ children, to, ...props }: LinkProps) {
-  const { classes, cx } = useStyles();
-  let resolved = useResolvedPath(to);
-  let match = useMatch({ path: resolved.pathname, end: true });
   return (
     <Link
-      to={to}
-      className={cx(classes.link, { [classes.linkActive]: match !== null, })} {...props}
+      to={to} {...props}
     >
       {children}
     </Link>
@@ -113,8 +109,8 @@ function HeaderLink({ children, to, ...props }: LinkProps) {
 
 export function AppHeader({ links }: HeaderResponsiveProps) {
   const [opened, { toggle, close }] = useDisclosure(false);
-  const { classes } = useStyles();
-
+  const { classes, cx } = useStyles();
+  const l = useLocation();
   const nav = useNavigate();
   const handleClick = (e: SyntheticEvent, link: string) => {
     e.preventDefault()
@@ -123,7 +119,14 @@ export function AppHeader({ links }: HeaderResponsiveProps) {
   }
 
   const items = links.map((link) => (
-    <HeaderLink key={link.label} to={link.link} onClick={(e) => handleClick(e, link.link)}>{link.label}</HeaderLink>
+    <HeaderLink
+      key={link.label}
+      to={link.link}
+      onClick={(e) => handleClick(e, link.link)}
+      className={cx(classes.link, { [classes.linkActive]: link.link === l.pathname })}
+    >
+      {link.label}
+    </HeaderLink>
   ));
 
   return (
