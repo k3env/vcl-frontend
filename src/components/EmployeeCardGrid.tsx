@@ -23,7 +23,7 @@ export function EmployeeCardGrid() {
 
   useEffect(() => {
     EmployeeAPI.list()
-      .then(setState, (reason) => {
+      .then((r) => { setState(r.data) }, (reason) => {
         showNotification({
           title: "Employee loading failed",
           message: reason.response.statusText,

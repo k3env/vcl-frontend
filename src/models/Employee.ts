@@ -73,12 +73,8 @@ export class Employee implements BaseModel<Employee, IEmployee, FEmployee> {
     onFail: (error: AxiosError<ErrorResponse>) => void
   ): void {
     this.id
-      ? EmployeeAPI.patch(this.id, this).then((d) => {
-          onSuccess({ data: d, message: "OK", status: 200 });
-        }, onFail)
-      : EmployeeAPI.post(this).then((d) => {
-          onSuccess({ data: d, message: "OK", status: 200 });
-        }, onFail);
+      ? EmployeeAPI.patch(this.id, this).then(onSuccess, onFail)
+      : EmployeeAPI.post(this).then(onSuccess, onFail);
   }
   delete(
     onSuccess: (data: DeleteResponse) => void,

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Employee, FEmployee } from "../models/Employee";
 import { EmployeeAPI } from "../services/EmployeeAPI";
+import { SingleResponse } from "../services/_ResponseTypes";
 import { LoadingScreen } from "./LoadingScreen";
 
 export function EmployeeForm() {
@@ -21,9 +22,9 @@ export function EmployeeForm() {
 
   let params = useParams();
   useEffect(() => {
-    const handleEmployeeLoad = (e: Employee) => {
-      setState(e);
-      form.setValues(e.toFormData());
+    const handleEmployeeLoad = (e: SingleResponse<Employee>) => {
+      setState(e.data);
+      form.setValues(e.data.toFormData());
       setLoading(false)
     };
     const employeeId = Number.parseInt(params.employee_id ?? "0", 10);

@@ -18,7 +18,7 @@ export function EmployeeCardDetails() {
   useEffect(() => {
     const employeeId = Number.parseInt(params.employee_id ?? "0", 10);
     EmployeeAPI.get(employeeId)
-      .then(setState, (reason) => {
+      .then((r) => { setState(r.data) }, (reason) => {
         showNotification({
           title: "Employee loading failed",
           message: reason.response.statusText,

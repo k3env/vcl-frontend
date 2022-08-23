@@ -12,6 +12,7 @@ import { LoadingScreen } from "./LoadingScreen";
 import { showNotification } from "@mantine/notifications";
 import { IconX } from "@tabler/icons";
 import { AxiosError } from "axios";
+import { ManyResponse } from "../services/_ResponseTypes";
 
 type VacationFormState = {
   vacation?: Vacation;
@@ -55,8 +56,8 @@ export function VacationForm(props: {}) {
         employee_id: (params.employee_id ?? 0).toString(),
       });
     }
-    const handleEmployeesLoad = (es: Employee[]) => {
-      const ems = es.map<EmployeeSelectData>((e) => {
+    const handleEmployeesLoad = (es: ManyResponse<Employee>) => {
+      const ems = es.data.map<EmployeeSelectData>((e) => {
         return { value: (e.id ?? 0).toString(), label: e.name };
       })
       setState((os) => { return { ...os, ...{ employees: ems, loading: true } } });
