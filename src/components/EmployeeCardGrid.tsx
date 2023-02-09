@@ -31,36 +31,8 @@ export function EmployeeCardGrid() {
         });
       })
   }, [counter]);
-
-  const [modalOpened, setModalOpened] = useState(false);
-  const [onLoading, setOnLoading] = useState(false);
-  const [childItem, setChildItem] = useState((<></>));
-  const [deleteData, setDeleteData] = useState(Employee.empty)
-
-  const handleDeleteClick = (data: Employee) => {
-    setDeleteData(data)
-    setModalOpened(true)
-  }
-  const handleEmployeeDelete = () => {
-    if (deleteData.id !== undefined) {
-      setOnLoading(true)
-      EmployeeAPI.delete(deleteData.id).then(handleEmployeeDeleteSuccess, handleEmployeeDeleteError);
-    } else {
-      handleEmployeeDeleteError()
-    }
-  };
-  const handleEmployeeDeleteSuccess = () => {
-    setModalOpened(false);
-    setOnLoading(false)
+  const handleDeleteClick = (d: Employee) => {
     setCounter(counter + 1)
-  };
-  const handleEmployeeDeleteError = (reason?: AxiosError) => {
-    setOnLoading(false);
-    setChildItem(
-      (<Alert icon={<IconAlertCircle size={16} />} title="Something went wrong" color="red">
-        {reason ? (`Something terrible happened: ${JSON.stringify(reason?.response?.data)}`) : ('Unknown error')}
-      </Alert>)
-    )
   }
 
   if (state === null) {
@@ -68,17 +40,13 @@ export function EmployeeCardGrid() {
   }
   return (
     <>
-      <DeleteModal errorChild={childItem} modalOpened={modalOpened} loading={onLoading} handleDeleteClick={handleEmployeeDelete} onModalClose={() => setModalOpened(false)}>
-        <Text>Are you sure want delete {deleteData.name}?</Text>
-        <Text>This action is irreversible</Text>
-      </DeleteModal>
       {state.length !== 0 ? (
         <SimpleGrid cols={3} spacing="sm">
           {state.map((e) => (
             <EmployeeCard
               employee={e}
               canPress={true}
-              key={e.id?.toString()}
+              key={e._id?.toString()}
               onDelete={handleDeleteClick}
             />
           ))}
@@ -86,6 +54,7 @@ export function EmployeeCardGrid() {
       ) : (
         <Center>
           <Text size="xl">No one employee found</Text>
+          <br />
           <Text>
             You can add someone by click on green plus button at bottom
             right corner

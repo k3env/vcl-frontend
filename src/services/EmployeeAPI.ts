@@ -12,7 +12,7 @@ export class EmployeeAPI extends BaseAPI {
       data: res.data.map((i) => Employee.fromJSON(i)),
     };
   }
-  public static async get(id: number): Promise<SingleResponse<Employee>> {
+  public static async get(id: string): Promise<SingleResponse<Employee>> {
     const res = (
       await this.client.get<SingleResponse<IEmployee>>(`/employee/${id}`)
     ).data;
@@ -23,7 +23,7 @@ export class EmployeeAPI extends BaseAPI {
     };
   }
   public static async patch(
-    id: number,
+    id: string,
     payload: Employee
   ): Promise<SingleResponse<Employee>> {
     const res = (
@@ -52,7 +52,7 @@ export class EmployeeAPI extends BaseAPI {
       data: Employee.fromJSON(res.data),
     };
   }
-  public static async delete(id: number): Promise<DeleteResponse> {
+  public static async delete(id: string): Promise<DeleteResponse> {
     return (await this.client.delete<DeleteResponse>(`/employee/${id}`)).data;
   }
 }

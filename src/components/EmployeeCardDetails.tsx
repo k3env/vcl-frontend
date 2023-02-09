@@ -16,7 +16,7 @@ export function EmployeeCardDetails() {
 
   let params = useParams();
   useEffect(() => {
-    const employeeId = Number.parseInt(params.employee_id ?? "0", 10);
+    const employeeId = params.employee_id ?? "";
     EmployeeAPI.get(employeeId)
       .then((r) => { setState(r.data) }, (reason) => {
         showNotification({
@@ -40,9 +40,9 @@ export function EmployeeCardDetails() {
     setModalOpened(true)
   }
   const handleEmployeeDelete = () => {
-    if (deleteData.id !== undefined) {
+    if (deleteData._id !== undefined) {
       setOnLoading(true)
-      EmployeeAPI.delete(deleteData.id).then(handleEmployeeDeleteSuccess, handleEmployeeDeleteError);
+      EmployeeAPI.delete(deleteData._id).then(handleEmployeeDeleteSuccess, handleEmployeeDeleteError);
     } else {
       handleEmployeeDeleteError()
     }

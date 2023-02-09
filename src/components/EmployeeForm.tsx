@@ -1,54 +1,79 @@
-import { Box, Button, ColorInput, Group, NumberInput, Text, TextInput } from "@mantine/core";
+import { Box, Button, ColorInput, Group, NumberInput, Select, Text, TextInput } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { showNotification } from "@mantine/notifications";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Employee, FEmployee } from "../models/Employee";
+import { JobTitle } from "../models/JobTitle";
 import { EmployeeAPI } from "../services/EmployeeAPI";
+import { JobTitleAPI } from "../services/JobTitleAPI";
 import { SingleResponse } from "../services/_ResponseTypes";
 import { LoadingScreen } from "./LoadingScreen";
 
+type JobTitleSelect = {
+  value: string;
+  label: string;
+}
+
 export function EmployeeForm() {
   const [state, setState] = useState<Employee | null>(null);
+  const [titles, setTitles] = useState<JobTitleSelect[] | null>(null);
   const [loading, setLoading] = useState(true)
   const form = useForm<FEmployee>({
+    validate: {
+    },
     initialValues: {
       name: "",
       color: "",
+      title: "",
+      maxDays: 0,
+      onVacation: 0
     },
   });
   const nav = useNavigate();
 
-  let params = useParams();
+  let { employee_id } = useParams();
   useEffect(() => {
-    const handleEmployeeLoad = (e: SingleResponse<Employee>) => {
-      setState(e.data);
-      form.setValues(e.data.toFormData());
-      setLoading(false)
-    };
-    const employeeId = Number.parseInt(params.employee_id ?? "0", 10);
-    EmployeeAPI.get(employeeId).then(handleEmployeeLoad, () => setLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.employee_id]);
+    console.log(employee_id)
+    JobTitleAPI.list().then((r) => {
+      setTitles(r.data.map((t) => { return { value: (t._id ?? 0).toString(), label: t.title } }))
+      const handleEmployeeLoad = (e: SingleResponse<Employee>) => {
+        console.log(e)
+        setState(e.data);
+        form.setValues(e.data.toFormData());
+        setLoading(false)
+      };
+      if (employee_id) {
+        EmployeeAPI.get(employee_id).then(handleEmployeeLoad, () => setLoading(false));
+      } else {
+        setLoading(false)
+      }
+    }, (e) => { })
+  }, []);
 
   function formOnSubmit(e: FEmployee) {
-    Employee.fromFormData(e).save((d) => { onRequestFulfilled(d.data) }, (e) => {
-      showNotification({
-        message: JSON.stringify(e.response?.data)
+    console.log(e)
+    if (employee_id) {
+      EmployeeAPI.patch(employee_id, Employee.fromFormData(e)).then((d) => { onRequestFulfilled(d) }, (e) => {
+        showNotification({
+          message: JSON.stringify(e.response?.data)
+        })
       })
-    })
-    // if (params.employee_id) {
-    //   const employeeId = Number.parseInt(params.employee_id ?? "0", 10);
-    //   // setState(Employee.fromJSON(e))
-    //   // EmployeeAPI.patch(employeeId, state).then(onRequestFulfilled);
-    // } else {
-    //   // EmployeeAPI.post(e).then(onRequestFulfilled);
-    // }
+    } else {
+      EmployeeAPI.post(Employee.fromFormData(e)).then((d) => { onRequestFulfilled(d) }, (e) => {
+        showNotification({
+          message: JSON.stringify(e.response?.data)
+        })
+      })
+    }
   }
 
-  function onRequestFulfilled(e: Employee) {
-    nav(`/employees/${e.id}`)
+  function onRequestFulfilled(d: SingleResponse<Employee>) {
+    showNotification({
+      message: d.message
+    })
+    nav(`/employees/${d.data._id}`)
   }
 
   if (loading) {
@@ -62,7 +87,7 @@ export function EmployeeForm() {
             ? `Editing ${state.name}`
             : "Create new employee"}
         </Text>
-        <NumberInput label="ID" disabled {...form.getInputProps('id')} />
+        <TextInput label="ID" disabled {...form.getInputProps('_id')} />
         <TextInput
           required
           label="Name"
@@ -75,8 +100,13 @@ export function EmployeeForm() {
           placeholder="#abcdef"
           {...form.getInputProps("color")}
         />
-        <DatePicker label="Created at" disabled {...form.getInputProps('created_at')} />
-        <DatePicker label="Updated at" disabled {...form.getInputProps('updated_at')} />
+        <Select
+          data={titles}
+          label="Select job title"
+          required
+          {...form.getInputProps('title')}
+        />
+        <NumberInput label="Max vacation days" {...form.getInputProps('maxDays')} />
         <Group position="right" mt="md">
           <Button type="submit" color="green">
             Submit

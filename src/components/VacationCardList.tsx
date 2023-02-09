@@ -52,49 +52,25 @@ export function VacationCardList(props: VacationCardProps) {
   const [state, dispatch] = useReducer(DeleteModalReducer, initialState)
 
   useEffect(() => {
-    const handleVacationsLoad = (vs: Vacation[]) => setVacations(vs);
-    VacationAPI.list(props.employee?.id ?? 0).then(handleVacationsLoad);
-  }, [props.employee?.id, state.count]);
+    VacationAPI.list(props.employee?._id ?? '').then((v) => {
+      console.log(v)
+      setVacations(v)
+    });
+  }, [props.employee?._id, state.count]);
 
   if (vacations === null) {
     return <LoadingScreen />;
   }
 
-  const handleVacationDelete = () => {
-    if (state.deletionID !== undefined) {
-      dispatch({
-        type: 'confirm-click',
-      })
-    }
-  };
-
-  const handleDeleteClick = (id?: number) => {
-    if (id) {
-      dispatch({ type: 'open-click', payload: { vid: id, model: (Vacation.name) } })
-    } else {
-      showNotification({
-        color: 'red',
-        title: 'Cannot delete vacation',
-        message: 'Can\'t delete unsaved vacation\nUNREACHABLE STATE'
-      })
-    }
+  const handleDeleteClick = (id?: string) => {
+    setVacations(vacations.filter(v => v._id !== id))
   }
 
   return (
     <>
-      <DeleteModal
-        errorChild={state.error}
-        handleDeleteClick={handleVacationDelete}
-        loading={state.onLoading}
-        modalOpened={state.modalOpened}
-        onModalClose={() => dispatch({ type: 'close-click' })}
-      >
-        <Text>Are you sure want delete vacation #{state.deletionID}?</Text>
-        <Text>This action is irreversible</Text>
-      </DeleteModal>
       <SimpleGrid cols={4} spacing="xs" >
         {vacations?.map((v) => (
-          <VacationCard vacation={v} key={v.id?.toString()} onDelete={handleDeleteClick} />
+          <VacationCard vacation={v} key={v._id} onDelete={handleDeleteClick} />
         ))}
       </SimpleGrid>
     </>

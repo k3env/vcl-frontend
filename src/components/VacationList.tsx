@@ -19,67 +19,21 @@ export function VacationList() {
   const [selectedMonth, setSelectedMonth] = useState<DateTime>(DateTime.now())
   const [vacations, setVacations] = useState<VacationHash>({});
   const [loading, setLoading] = useState<boolean>(true);
+  const [count, setCount] = useState<number>(0)
 
   const VacationItem = (props: { vacation: Vacation }) => {
     return <ColorSwatch color={props.vacation.employee.color} size={8} />
   }
 
-  const handleConfirmComplete = (data: DeleteResponse) => {
-    dispatch({ type: 'action-success' })
-    showNotification({
-      color: 'green',
-      title: 'Vacation deleted',
-      message: `Vacation #${data.data.id} deleted`
-    });
+  const handleDeleteClick = (id?: string) => {
+    setCount(count + 1)
   }
-
-  const handleConfirmFail = (reason: AxiosAPIError) => {
-    dispatch({
-      type: 'action-error', payload: {
-        error: (<Alert icon={<IconAlertCircle size={16} />} title="Something went wrong" color="red">
-          Something terrible happened: {JSON.stringify(reason.response)}
-        </Alert>)
-      }
-    })
-  }
-
-  const initialState: DeleteReducerState = {
-    count: 0,
-    deletionID: undefined,
-    deletionModel: 'Vacation',
-    modalOpened: false,
-    onLoading: false,
-    error: null,
-    callbackSuccess: (data) => { handleConfirmComplete(data) },
-    callbackFail: (data) => { handleConfirmFail(data) }
-  }
-
-  const handleDeleteClick = (id?: number) => {
-    if (id) {
-      dispatch({ type: 'open-click', payload: { vid: id, model: (Vacation.name) } })
-    } else {
-      showNotification({
-        color: 'red',
-        title: 'Cannot delete vacation',
-        message: 'Can\'t delete unsaved vacation\nUNREACHABLE STATE'
-      })
-    }
-  }
-  const handleVacationDelete = () => {
-    if (state.deletionID !== undefined) {
-      dispatch({
-        type: 'confirm-click',
-      })
-    }
-  };
-
-  const [state, dispatch] = useReducer(DeleteModalReducer, initialState)
 
   const customDayRender = (date: Date) => {
     const day = date.getDate();
     const dateString = DateTime.fromJSDate(date).toFormat('yyyy-LL-dd');
     let vs = vacations[dateString] ?? []
-    let items: JSX.Element[] = vs.map((v) => (<VacationItem key={v.id} vacation={v} />)).slice(0, 5);
+    let items: JSX.Element[] = vs.map((v) => (<VacationItem key={v._id} vacation={v} />)).slice(0, 5);
     return (
       <div>
         <Grid gutter="xs" grow>
@@ -105,6 +59,7 @@ export function VacationList() {
   useEffect(() => {
     let _vacations: VacationHash = {}
     VacationAPI.list().then((vs) => {
+      console.log(vs)
       vs.forEach((v) => {
         for (let di = 0; di < v.length; di++) {
           const key = v.start.plus({ days: di }).toFormat('yyyy-LL-dd');
@@ -117,7 +72,7 @@ export function VacationList() {
       setVacations(_vacations)
       setLoading(false)
     })
-  }, [state.count])
+  }, [count])
 
   const style = ({
     cell: {
@@ -141,17 +96,6 @@ export function VacationList() {
   return (
     <>
       <LoadingOverlay visible={loading} overlayBlur={5} />
-      <DeleteModal
-        errorChild={state.error}
-        handleDeleteClick={handleVacationDelete}
-        loading={state.onLoading}
-        modalOpened={state.modalOpened}
-        onModalClose={() => dispatch({ type: 'close-click' })}
-      // reducer={{ state: state, dispatch: dispatch }}
-      >
-        <Text>Are you sure want delete vacation #{state.deletionID}?</Text>
-        <Text>This action is irreversible</Text>
-      </DeleteModal>
       <Calendar
         value={day.toJSDate()}
         onChange={handleChangeDate}
@@ -167,7 +111,7 @@ export function VacationList() {
         {
           (vacations[key])?.map(
             (v) => {
-              return <Grid.Col key={v.id?.toString()} span={4}><VacationCard vacation={v} onDelete={handleDeleteClick} showHeader={true} /></Grid.Col>
+              return <Grid.Col key={v._id} span={4}><VacationCard vacation={v} onDelete={handleDeleteClick} showHeader={true} /></Grid.Col>
             }
           )
         }

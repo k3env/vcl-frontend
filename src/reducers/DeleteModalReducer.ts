@@ -11,7 +11,7 @@ export type DeleteReducerActionType =
 
 export type DeleteReducerState = {
   count: number;
-  deletionID: number | undefined;
+  deletionID: string | undefined;
   deletionModel: "Vacation" | "Employee";
   modalOpened: boolean;
   onLoading: boolean;
@@ -63,7 +63,7 @@ export function DeleteModalReducer(
       }
       break;
     case "open-click":
-      const _typedPayload = payload as { vid: number; model: string };
+      const _typedPayload = payload as { vid: string; model: string };
       console.log(payload);
       newState = {
         onLoading: false,

@@ -26,57 +26,45 @@ type EmployeeSelectData = {
 };
 
 export function VacationForm(props: {}) {
-  const [state, setState] = useState<VacationFormState>({
-    loading: true,
-    vacation: undefined,
-    employees: undefined
-  });
+  // const [state, setState] = useState<VacationFormState>({
+  //   loading: true,
+  //   vacation: undefined,
+  //   employees: undefined
+  // });
   const nav = useNavigate();
-  let params = useParams();
+  let { employee_id, vID } = useParams();
   const form = useForm<FVacation>({
     initialValues: {
       start: DateTime.now().toJSDate(),
       length: 3,
-      employee_id: params.employee_id ?? '0',
     },
   });
 
+  const [loading, setLoading] = useState<boolean>(true)
+  const [employees, setEmployees] = useState<EmployeeSelectData[] | null>(null)
+  const [isEdit, setIsEdit] = useState<boolean>(false)
 
   useEffect(() => {
-    const handleVacationLoad = (v: Vacation) => {
-      setState((os) => { return { ...os, ...{ vacation: v, loading: false } } })
-      form.setValues(v.toFormData());
-    };
-
-    const handleError = () => {
-      setState((os) => { return { ...os, ...{ loading: false } } });
-      form.setValues({
-        start: new Date(),
-        length: 3,
-        employee_id: (params.employee_id ?? 0).toString(),
-      });
-    }
-    const handleEmployeesLoad = (es: ManyResponse<Employee>) => {
-      const ems = es.data.map<EmployeeSelectData>((e) => {
-        return { value: (e.id ?? 0).toString(), label: e.name };
-      })
-      setState((os) => { return { ...os, ...{ employees: ems, loading: true } } });
-
-      const vID = Number.parseInt(params.vID ?? "0", 10);
-      if (vID !== 0) {
-        VacationAPI.get(vID).then(handleVacationLoad, handleError);
-      } else {
-        handleError()
+    EmployeeAPI.list().then(r => {
+      setEmployees(r.data.map((e) => { return { value: e._id ?? '', label: e.name } }))
+      form.setFieldValue('employee', employee_id)
+      setLoading(false)
+      if (vID) {
+        VacationAPI.get(vID).then(r => {
+          form.setValues({ ...r.toFormData(), employee: employee_id })
+          setIsEdit(true)
+        }, e => { })
       }
-    };
-    EmployeeAPI.list().then(handleEmployeesLoad)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.vID]);
-  if (state.loading) {
+    }, e => nav(`/employees/${employee_id}`))
+  }, [])
+
+  if (loading) {
     return <LoadingScreen />;
   }
   const formOnSubmit = async (v: FVacation) => {
-    const handleSuccessRequest = () => nav(`/employees/${v.employee_id}`);
+    console.log(v)
+
+    const handleSuccessRequest = () => nav(`/employees/${v.employee}`);
     const handleError = (reason: AxiosError) => {
       showNotification({
         title: `Error: ${reason.code}`,
@@ -88,13 +76,13 @@ export function VacationForm(props: {}) {
       });
     };
     // let vacation = Vacation.formDataToPayload(v);
-    if (params.vID === undefined) {
-      VacationAPI.post(Number.parseInt(v.employee_id ?? ''), v).then(
+    if (vID === undefined) {
+      VacationAPI.post(v).then(
         handleSuccessRequest,
         handleError
       );
     } else {
-      VacationAPI.patch(Number.parseInt(params.vID, 10), v).then(
+      VacationAPI.patch(vID, v).then(
         handleSuccessRequest,
         handleError
       );
@@ -104,10 +92,10 @@ export function VacationForm(props: {}) {
   // Markup here
   return (
     <Box sx={{ maxWidth: 500 }} mx="auto">
-      <form onSubmit={form.onSubmit((v) => formOnSubmit(v))}>
+      <form onSubmit={form.onSubmit((v) => formOnSubmit(v))} onChange={(e) => { console.log(e) }}>
         <Text size="xl">
-          {state.vacation
-            ? `Editing vacation #${state.vacation.id}`
+          {isEdit
+            ? `Edit vacation #${form.values._id}`
             : "Add vacation"}
         </Text>
         <DatePicker
@@ -123,10 +111,10 @@ export function VacationForm(props: {}) {
           {...form.getInputProps("length")}
         />
         <Select
-          data={state.employees}
+          data={employees}
           label="Select employee"
           required
-          {...form.getInputProps('employee_id')}
+          {...form.getInputProps('employee')}
         />
         <Group position="right" mt="md">
           <Button type="submit" color="green">
@@ -135,7 +123,7 @@ export function VacationForm(props: {}) {
           <Button
             color="yellow"
             component={Link}
-            to={`/employees/${params.employee_id}`}
+            to={`/employees/${employee_id}`}
           >
             Go back
           </Button>

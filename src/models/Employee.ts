@@ -9,39 +9,23 @@ import {
 import { BaseModel } from "./BaseModel";
 
 export class Employee implements BaseModel<Employee, IEmployee, FEmployee> {
-  id: number | undefined;
-  name: string;
-  color: string;
-  created_at?: DateTime;
-  updated_at?: DateTime;
-
   constructor(
-    id: number | undefined,
-    name: string,
-    color: string,
-    created_at?: string,
-    updated_at?: string
-  ) {
-    this.id = id;
-    this.name = name;
-    this.color = color;
-    this.created_at =
-      created_at === undefined ? undefined : DateTime.fromISO(created_at);
-    this.updated_at =
-      updated_at === undefined ? undefined : DateTime.fromISO(updated_at);
-  }
+    public _id: string | undefined,
+    public name: string,
+    public color: string,
+    public title: string,
+    public maxDays: number,
+    public onVacation: number
+  ) {}
 
   static fromFormData(data: FEmployee): Employee {
     return new Employee(
-      data.id,
+      data._id,
       data.name,
       data.color,
-      data.created_at === undefined
-        ? undefined
-        : DateTime.fromJSDate(data.created_at).toISO(),
-      data.updated_at === undefined
-        ? undefined
-        : DateTime.fromJSDate(data.updated_at).toISO()
+      data.title,
+      data.maxDays,
+      data.onVacation
     );
   }
   static formDataToInterface(data: FEmployee): IEmployee {
@@ -52,65 +36,54 @@ export class Employee implements BaseModel<Employee, IEmployee, FEmployee> {
   }
   toFormData(): FEmployee {
     return {
-      id: this.id,
+      _id: this._id,
       name: this.name,
       color: this.color,
-      created_at: this.created_at?.toJSDate(),
-      updated_at: this.updated_at?.toJSDate(),
+      title: this.title,
+      maxDays: this.maxDays,
+      onVacation: this.onVacation,
     };
   }
   public toJSON(): IEmployee {
     return {
       name: this.name,
       color: this.color,
-      created_at: this.created_at?.toISO(),
-      updated_at: this.updated_at?.toISO(),
-      id: this.id,
+      title: this.title,
+      _id: this._id,
+      maxDays: this.maxDays,
+      onVacation: this.onVacation,
     };
-  }
-  save(
-    onSuccess: (data: SingleResponse<Employee>) => void,
-    onFail: (error: AxiosError<ErrorResponse>) => void
-  ): void {
-    this.id
-      ? EmployeeAPI.patch(this.id, this).then(onSuccess, onFail)
-      : EmployeeAPI.post(this).then(onSuccess, onFail);
-  }
-  delete(
-    onSuccess: (data: DeleteResponse) => void,
-    onFail: (error: AxiosError<ErrorResponse>) => void
-  ): void {
-    if (this.id) {
-      EmployeeAPI.delete(this.id).then(onSuccess, onFail);
-    }
   }
 
   public static fromJSON(data: IEmployee) {
     return new Employee(
-      data.id,
+      data._id,
       data.name,
       data.color,
-      data.created_at,
-      data.updated_at
+      data.title,
+      data.maxDays,
+      data.onVacation
     );
   }
   public static empty(): Employee {
-    return new Employee(undefined, "", "");
+    return new Employee(undefined, "", "", "", 0, 0);
   }
 }
 
 export interface IEmployee {
-  id?: number;
+  _id?: string;
   name: string;
   color: string;
-  created_at?: string;
-  updated_at?: string;
+  title: string;
+  maxDays: number;
+  onVacation: number;
 }
 
 export interface FEmployee {
-  id?: number;
+  _id?: string;
   name: string;
   color: string;
-  created_at?: Date;
-  updated_at?: Date;
+  title: string;
+  maxDays: number;
+  onVacation: number;
 }
