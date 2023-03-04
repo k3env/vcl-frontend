@@ -4,12 +4,13 @@ import { DeleteResponse, ManyResponse, SingleResponse } from "./_ResponseTypes";
 
 export class VacationAPI extends BaseAPI {
   public static async list(employee_id?: string): Promise<Vacation[]> {
+    const reqURI =
+      employee_id !== undefined
+        ? `/employee/${employee_id}/vacation?expand`
+        : "/vacation?expand";
+    console.log(reqURI);
     return (
-      await this.client.get<ManyResponse<IVacation>>(
-        employee_id !== undefined
-          ? `/employee/${employee_id}/vacation?expand`
-          : "/vacation?expand"
-      )
+      await this.client.get<ManyResponse<IVacation>>(reqURI)
     ).data.data.map((d) => Vacation.fromJSON(d));
   }
   public static async get(id: string): Promise<Vacation> {

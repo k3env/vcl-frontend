@@ -87,6 +87,7 @@ export class Vacation implements BaseModel<Vacation, IVacation, FVacation> {
   }
 
   public static fromJSON(data: IVacation) {
+    console.log(data);
     return new Vacation(
       data._id,
       data.start,
