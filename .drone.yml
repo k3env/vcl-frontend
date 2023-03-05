@@ -1,2 +1,5 @@
 kind: template
 load: k8s-docker-image.yaml
+---
+kind: template
+load: k8s-deploy-app.yaml
