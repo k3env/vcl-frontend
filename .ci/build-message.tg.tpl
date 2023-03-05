@@ -1,4 +1,4 @@
-Build #{{build.number}} {{repo.owner}}\{{repo.name}} finished
+Build #{{build.number}} {{repo.owner}}/{{repo.name}} finished
 
 Message: `{{commit.message}}`
 
