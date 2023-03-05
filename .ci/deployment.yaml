@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: vcl
+spec:
+  selector:
+    matchLabels:
+      app: vcl
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: vcl
+        tier: frontend
+    spec:
+      containers:
+        - name: ui
+          image: k3env/vcl-frontend:latest
+          resources:
+            limits:
+              memory: "64Mi"
+              cpu: "100m"
+          ports:
+            - containerPort: 80
